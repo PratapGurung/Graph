@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 class vertex {
 	private int xLoc;
@@ -13,8 +14,10 @@ class vertex {
 	public Color edgeColor = Color.blue;
 	private boolean visited = false;
 
-	private ArrayList<edge> connectingEdge = new ArrayList<edge>();
+	private ArrayList<edge> adjacentEdges = new ArrayList<edge>();
 	
+	//adjacent vertex list
+	protected LinkedList<vertex> adjacentVertex = new LinkedList<vertex>();
 
 	vertex(int x, int y){
 		xLoc = x;
@@ -25,23 +28,23 @@ class vertex {
 
 	public int getX() {return xLoc;};
 	public int gety() {return yLoc;}
-	public ArrayList<edge> returnEdges(){return connectingEdge;}
+	public ArrayList<edge> returnEdges(){return adjacentEdges;}
 
 	public boolean hasEdges() {
-		if(connectingEdge.size() != 0)
+		if(adjacentEdges.size() != 0)
 			return true;
 		else
 			return false;
 	}
 
-	public void addConEdges(edge e) {
-		connectingEdge.add(e);
+	public void addEdges(vertex e) {
+		adjacentVertex.add(e);
 	}
-	public void removeEdge(edge e) {
-		connectingEdge.remove(e);
+	public void removeEdge(vertex e) {
+		adjacentEdges.remove(e);
 	}
 	public void removeallConEdges(displayPanel panel) {
-		panel.edgelistupdate(connectingEdge);
+		panel.edgelistupdate(adjacentEdges);
 	}
 	public void setColor(Color c) {
 		color = c;
@@ -56,7 +59,7 @@ class vertex {
 	}
 	public ArrayList<edge> retconedges() {
 		// TODO Auto-generated method stub
-		return connectingEdge;
+		return adjacentEdges;
 	}
 }
  

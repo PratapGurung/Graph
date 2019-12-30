@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
@@ -12,6 +13,9 @@ class displayPanel extends JPanel{
 	private static final long serialVersionUID = 1L;
 	protected ArrayList<vertex> vertexlist = new ArrayList<vertex>();
 	protected ArrayList<edge> edgelist = new ArrayList<edge>();
+	protected ArrayList<LinkedList<edge>> list = new ArrayList<LinkedList<edge>>();
+
+
 
 	displayPanel(){
 		super();
@@ -56,10 +60,11 @@ class displayPanel extends JPanel{
 	}
 	public void addedge(vertex v1, vertex v2){
 		// TODO Auto-generated method stub
-		if(exist(v1) !=- 1&&exist(v2) != -1 
-				&& !v1.equals(v2)){
+		if(exist(v1) !=- 1 && exist(v2) != -1 && !v1.equals(v2)){
 			edge e = new edge(v1,v2);
 			edgelist.add(e);
+
+
 			v1.addConEdges(e);
 			v2.addConEdges(e);
 			this.repaint();
@@ -176,14 +181,92 @@ class displayPanel extends JPanel{
 		for(vertex v: vertexlist) {
 			v.edgeColor = Color.blue;
 		}
+
+		////////////
+		///////////
+		////////////
+		/////////////
+		//show components using matrix implementation
+		ArrayList<ArrayList<vertex>> graphs = new ArrayList<ArrayList<vertex>>();
+		for(edge e: edgelist) {
+			if(graphs.isEmpty()) {
+				ArrayList<vertex> graph = new ArrayList<vertex>();
+				graph.add(e.retVertex1());
+				graph.add(e.retVertex2());
+				graphs.add(graph);
+			}
+			else{
+				boolean Adjacent = false;
+				int graphIndex = 0;
+				int vertexEq = 0;
+				ArrayList<vertex> graph = null;
+				for(int i = 0 ; i < graphs.size(); i++) {
+					graph = graphs.get(i);
+					for(int j = 0;j < graph.size(); j++) {
+						vertex v = graph.get(j);
+						if( v.equals(e.retVertex2()) || v.equals(e.retVertex1())) {
+							Adjacent =true;
+							graphIndex = i;
+							if( v.equals(e.retVertex1()) ) {
+								vertexEq = 1;
+							}
+							if( v.equals(e.retVertex2()) ) {
+								vertexEq = 2;
+							}
+							break;
+						}
+					}
+				}
+				if(Adjacent) {
+					if(vertexEq == 1) {
+						graphs.get(graphIndex).add(e.retVertex2());
+					}
+					if(vertexEq == 2) {
+						graphs.get(graphIndex).add(e.retVertex1());
+					}
+
+				}
+				else {
+					graph = new ArrayList<vertex>();
+					graph.add(e.retVertex1());
+					graph.add(e.retVertex2());
+					graphs.add(graph);
+				}
+				//graphs.add(graph);
+			}
+		}
+		///
+		///
+		//showing graphs in console
+		// TODO Auto-generated method stub
+		for(int i = 0 ; i < graphs.size(); i++) {
+			System.out.println("Graph : " + i);
+			for(int j = 0;j < graphs.get(i).size(); j++) {
+				vertex v =graphs.get(i).get(j);
+
+				System.out.print(v.getX()+ " " + v.gety() + " ," );
+			}
+			System.out.println();
+		}
+		//end of matrix implementation
+		////////
+		///////
+		//////
+
+		//show different graphs in different colors
 		coloredges(vertexlist,edgelist);
+
+
 		this.repaint();
 	}
+
+
 	public void coloredges(ArrayList<vertex> vlist, ArrayList<edge>elist) {
 		for(vertex v: vlist) {
-			
+
+			//gives  random color 
 			Color col =  new Color((float)Math.random(),(float)Math.random(),(float)Math.random());
-			
+
 
 			for(edge e: elist) {
 				if(!e.retVisted() &&
@@ -201,7 +284,7 @@ class displayPanel extends JPanel{
 							v.edgeColor = e.retVertex2().edgeColor;
 
 						}
-						
+
 						else {
 							col = new Color((float)Math.random(),(float)Math.random(),(float)Math.random());
 							e.setColor(col);
@@ -221,7 +304,7 @@ class displayPanel extends JPanel{
 							v.edgeColor = e.retVertex1().edgeColor;
 
 						}
-						
+
 						else {
 							col = new Color((float)Math.random(),(float)Math.random(),(float)Math.random());
 							e.setColor(col);
@@ -241,7 +324,7 @@ class displayPanel extends JPanel{
 		edgelist.removeAll(edgelist);
 		this.repaint();
 	}
-	
+
 	public void cutVertices() {
 		@SuppressWarnings("unchecked")
 		ArrayList<vertex> vlist = (ArrayList<vertex>) vertexlist.clone();
@@ -261,7 +344,7 @@ class displayPanel extends JPanel{
 				for(int j = 0; j< elist.size();j++) {
 					if(elist.get(j).retVertex1().equals(v)||elist.get(j).retVertex2().equals(v))
 						elist.remove(j);
-						
+
 				}
 				vlist.remove(i);
 				coloredges(vlist, elist);
@@ -271,7 +354,7 @@ class displayPanel extends JPanel{
 				vlist.add(v);
 			}
 		}
-		
+
 		for(int i = 0; i< id.size();i++) {
 			vertexlist.get(id.get(i)).setColor(Color.green);
 		}
@@ -288,7 +371,6 @@ class displayPanel extends JPanel{
 				clist.add(e.lineColor());
 			}
 		}
-		
 		return clist.size();
 	}
 

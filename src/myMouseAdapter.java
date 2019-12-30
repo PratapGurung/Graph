@@ -18,7 +18,6 @@ class myMouseAdapter extends MouseAdapter {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
-		System.out.print("x:"+ e.getX() + "y:"+e.getY() );
 		if(ggui.addVertex.isSelected()) {
 			panel.addvertex(new vertex(e.getX(),e.getY()));
 			clickreset();

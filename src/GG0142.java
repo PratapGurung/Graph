@@ -86,6 +86,7 @@ class GG0142  extends JPanel {
 				display.addAllEdges();
 			}
 		});
+		
 		connectComponent= new JButton("Connect Component");
 		connectComponent.setPreferredSize(new Dimension(160, 40));
 		connectComponent.addActionListener(new ActionListener() {
