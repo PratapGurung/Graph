@@ -12,7 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-
+//pratap gurung
 class GG0142  extends JPanel {
 	// dimension for frame
 	public static final int WIDTH = 1000, HEIGHT = 800;
