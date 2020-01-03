@@ -2,7 +2,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 class vertex {
 	private int xLoc;
@@ -10,14 +9,18 @@ class vertex {
 	private Color color = Color.red;
 	private final static int width = 20;
 	private final static int height = 20;
+	private boolean visited = false;
+	private ArrayList<edge> connectingEdge = new ArrayList<edge>();
+	private ArrayList<vertex> adjacentVertex = new ArrayList<vertex>();
+	
+	//public 
 	public int vertexNum = 0;
 	public Color edgeColor = Color.blue;
-	private boolean visited = false;
-
-	private ArrayList<edge> adjacentEdges = new ArrayList<edge>();
 	
-	//adjacent vertex list
-	protected LinkedList<vertex> adjacentVertex = new LinkedList<vertex>();
+	//fields for articulation points
+	public int disc = 0;
+	public int low = 0;
+	public vertex parent = null; 
 
 	vertex(int x, int y){
 		xLoc = x;
@@ -28,23 +31,29 @@ class vertex {
 
 	public int getX() {return xLoc;};
 	public int gety() {return yLoc;}
-	public ArrayList<edge> returnEdges(){return adjacentEdges;}
+	public ArrayList<edge> returnEdges(){return connectingEdge;}
+	public ArrayList<vertex> adjV(){return adjacentVertex;}
 
 	public boolean hasEdges() {
-		if(adjacentEdges.size() != 0)
+		if(connectingEdge.size() != 0)
 			return true;
 		else
 			return false;
 	}
-
-	public void addEdges(vertex e) {
-		adjacentVertex.add(e);
+	public void addAdjV(vertex v) {
+		this.adjacentVertex.add(v);
 	}
-	public void removeEdge(vertex e) {
-		adjacentEdges.remove(e);
+	public void removeAdjV(vertex v) {
+		this.adjacentVertex.remove(v);
+	}
+	public void addConEdges(edge e) {
+		connectingEdge.add(e);
+	}
+	public void removeEdge(edge e) {
+		connectingEdge.remove(e);
 	}
 	public void removeallConEdges(displayPanel panel) {
-		panel.edgelistupdate(adjacentEdges);
+		panel.edgelistupdate(connectingEdge);
 	}
 	public void setColor(Color c) {
 		color = c;
@@ -57,10 +66,8 @@ class vertex {
 	public Rectangle getBounds(){
 		return new Rectangle( xLoc,yLoc, width, height);
 	}
-	public ArrayList<edge> retconedges() {
-		// TODO Auto-generated method stub
-		return adjacentEdges;
-	}
+	
+	
 }
  
 

@@ -14,14 +14,19 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 //pratap gurung
 class GG0142  extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+
 	// dimension for frame
 	public static final int WIDTH = 1000, HEIGHT = 800;
 
 
 	private JPanel MenuPanel;
 	private displayPanel display;
-	private JPanel containPanel;
-
+	
 	GG0142(){
 
 		createPanel();
@@ -31,7 +36,7 @@ class GG0142  extends JPanel {
 
 
 	public void createPanel() {
-		containPanel = new JPanel();
+		//containPanel = new JPanel();
 
 
 		MenuPanel = new JPanel();
@@ -41,13 +46,13 @@ class GG0142  extends JPanel {
 
 
 		display = new displayPanel();
-		display.setPreferredSize(new Dimension(800, HEIGHT));
+		
+		display.setPreferredSize(new Dimension(700, HEIGHT));
+		display.setVisible(true);
 		display.addMouseListener(new myMouseAdapter(display,this));
-
-
-		containPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		containPanel.add(MenuPanel);
-		containPanel.add(display);
+		
+		//containPanel.add(MenuPanel);
+		//containPanel.add(display);
 
 	}
 	public void creatButtons() {
@@ -105,7 +110,7 @@ class GG0142  extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				display.cutVertices();
+				display.AP();
 			}
 		});
 		help = new JButton("Help");
@@ -135,7 +140,7 @@ class GG0142  extends JPanel {
 		MenuPanel.add(showCutVert);
 		MenuPanel.add(help);
 		MenuPanel.add(Clear);
-
+		
 
 	}
 
@@ -176,7 +181,9 @@ class GG0142  extends JPanel {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		frame.pack();
-		frame.getContentPane().add(ggui.containPanel);
+		frame.getContentPane().add(ggui.MenuPanel);
+		frame.getContentPane().add(ggui.display);
+		frame.setLayout(new FlowLayout(FlowLayout.LEFT));
 		frame.setVisible(true);
 
 	}

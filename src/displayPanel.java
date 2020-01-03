@@ -1,10 +1,11 @@
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
+// import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
-import javax.swing.JPanel;
+import javax.swing.JPanel;			
 
 class displayPanel extends JPanel{
 	/**
@@ -13,21 +14,22 @@ class displayPanel extends JPanel{
 	private static final long serialVersionUID = 1L;
 	protected ArrayList<vertex> vertexlist = new ArrayList<vertex>();
 	protected ArrayList<edge> edgelist = new ArrayList<edge>();
-	protected ArrayList<LinkedList<edge>> list = new ArrayList<LinkedList<edge>>();
-
-
 
 	displayPanel(){
 		super();
 	}
-	public void paint(Graphics g) {
+	public void paintComponent(Graphics g) {
+		//Graphics g = this.getGraphics();
+		super.paintComponent(g);
 		for(vertex x: vertexlist) {
 			x.draw(g);
 		}
 		for(edge e: edgelist) {
 			e.draw(g);
+
 		}
 	}
+
 	public int exist(vertex e) {
 		for(int i=0;i<vertexlist.size();i++)
 		{
@@ -52,21 +54,29 @@ class displayPanel extends JPanel{
 	public void addvertex(vertex v) {
 		// TODO Auto-generated method stu
 		if(exist(v) == -1 && !outofbound(v.getX(), v.gety())) {
+			v.vertexNum = vertexlist.size();
 			vertexlist.add(v);
-			vertexlist.get(exist(v)).vertexNum = exist(v);
 			this.repaint();
 		}
 
 	}
+
 	public void addedge(vertex v1, vertex v2){
 		// TODO Auto-generated method stub
-		if(exist(v1) !=- 1 && exist(v2) != -1 && !v1.equals(v2)){
+		if(exist(v1) !=- 1&&exist(v2) != -1 
+				&& !v1.equals(v2)){
 			edge e = new edge(v1,v2);
 			edgelist.add(e);
 
-
+			//add connecting edges
 			v1.addConEdges(e);
 			v2.addConEdges(e);
+
+			//add adjacency
+			v1.addAdjV(v2);
+			v2.addAdjV(v1);
+
+			//repaint
 			this.repaint();
 		}
 
@@ -102,6 +112,10 @@ class displayPanel extends JPanel{
 				v1.removeEdge(e2);
 				v2.removeEdge(e2);
 			}
+
+			//remove adjacency
+			v1.removeAdjV(v2);
+			v2.removeAdjV(v1);
 			this.repaint();
 		}	
 	}
@@ -111,6 +125,13 @@ class displayPanel extends JPanel{
 		for(int i=0;i<edgelist.size();i++)
 		{
 			if(edgelist.get(i).getBounds().intersects(r)) {
+				vertex v1 = edgelist.get(i).retVertex1();
+				vertex v2 = edgelist.get(i).retVertex2();
+				v1.removeEdge(edgelist.get(i));
+				v2.removeEdge(edgelist.get(i));
+				//remove adjacency
+				v1.removeAdjV(v2);
+				v2.removeAdjV(v1);
 				edgelist.remove(i);
 				break;
 			}
@@ -137,7 +158,6 @@ class displayPanel extends JPanel{
 	public void addAllEdges() {
 		// TODO Auto-generated method stub
 		if(edgelist.size() -(vertexlist.size() * (vertexlist.size() - 1))/2!= 0) {
-			System.out.print("false");
 			for(int i=0;i< vertexlist.size();i++) {
 				vertex v = vertexlist.get(i);
 				for(int j = 0; j < i; j++) {
@@ -155,6 +175,7 @@ class displayPanel extends JPanel{
 		}
 		this.repaint();
 	}
+
 	public void recreatEdges(vertex oldV, vertex newV) {
 		// TODO Auto-generated method stub
 		for(edge e: edgelist)
@@ -173,205 +194,175 @@ class displayPanel extends JPanel{
 		vertexlist.remove(exist(oldV));
 	}
 
-	public void showComponents(){
-		for(edge e: edgelist) {
-			if(e.retVisted())
-				e.setVisited(false);
+	public void showComponents() {
+		for (edge e: edgelist) {
+			e.setVisited(false);//set visited
+			
+			/*
+			 * //v.setColor(Color.black); System.out.println(v.getX() + " " + v.gety());
+			 * for(vertex x: v.adjV()) { System.out.println("\t" + x.getX() + " " +
+			 * x.gety()); }
+			 */
 		}
-		for(vertex v: vertexlist) {
-			v.edgeColor = Color.blue;
+
+
+		for (edge e: edgelist) { 
+			Color col = new Color((float)Math.random(),(float)Math.random(),(float)Math.random());
+
+			if(!e.visited()) {
+				DFSVISIT(e, col); 
+				e.setVisited(true);
+			} 
 		}
-
-		////////////
-		///////////
-		////////////
-		/////////////
-		//show components using matrix implementation
-		ArrayList<ArrayList<vertex>> graphs = new ArrayList<ArrayList<vertex>>();
-		for(edge e: edgelist) {
-			if(graphs.isEmpty()) {
-				ArrayList<vertex> graph = new ArrayList<vertex>();
-				graph.add(e.retVertex1());
-				graph.add(e.retVertex2());
-				graphs.add(graph);
-			}
-			else{
-				boolean Adjacent = false;
-				int graphIndex = 0;
-				int vertexEq = 0;
-				ArrayList<vertex> graph = null;
-				for(int i = 0 ; i < graphs.size(); i++) {
-					graph = graphs.get(i);
-					for(int j = 0;j < graph.size(); j++) {
-						vertex v = graph.get(j);
-						if( v.equals(e.retVertex2()) || v.equals(e.retVertex1())) {
-							Adjacent =true;
-							graphIndex = i;
-							if( v.equals(e.retVertex1()) ) {
-								vertexEq = 1;
-							}
-							if( v.equals(e.retVertex2()) ) {
-								vertexEq = 2;
-							}
-							break;
-						}
-					}
-				}
-				if(Adjacent) {
-					if(vertexEq == 1) {
-						graphs.get(graphIndex).add(e.retVertex2());
-					}
-					if(vertexEq == 2) {
-						graphs.get(graphIndex).add(e.retVertex1());
-					}
-
-				}
-				else {
-					graph = new ArrayList<vertex>();
-					graph.add(e.retVertex1());
-					graph.add(e.retVertex2());
-					graphs.add(graph);
-				}
-				//graphs.add(graph);
-			}
-		}
-		///
-		///
-		//showing graphs in console
-		// TODO Auto-generated method stub
-		for(int i = 0 ; i < graphs.size(); i++) {
-			System.out.println("Graph : " + i);
-			for(int j = 0;j < graphs.get(i).size(); j++) {
-				vertex v =graphs.get(i).get(j);
-
-				System.out.print(v.getX()+ " " + v.gety() + " ," );
-			}
-			System.out.println();
-		}
-		//end of matrix implementation
-		////////
-		///////
-		//////
-
-		//show different graphs in different colors
-		coloredges(vertexlist,edgelist);
-
 
 		this.repaint();
+
 	}
 
-
-	public void coloredges(ArrayList<vertex> vlist, ArrayList<edge>elist) {
-		for(vertex v: vlist) {
-
-			//gives  random color 
-			Color col =  new Color((float)Math.random(),(float)Math.random(),(float)Math.random());
-
-
-			for(edge e: elist) {
-				if(!e.retVisted() &&
-						(e.retVertex1().equals(v)|| e.retVertex2().equals(v)) ) {
-
-					e.setVisited(true);
-					if(e.retVertex1().equals(v) ) {
-						if(v.edgeColor != Color.blue ) {
-							e.setColor(v.edgeColor);
-							e.retVertex2().edgeColor = v.edgeColor;
-						}
-						else if(v.edgeColor == Color.blue
-								&& e.retVertex2().edgeColor !=  Color.blue){
-							e.setColor(e.retVertex2().edgeColor);
-							v.edgeColor = e.retVertex2().edgeColor;
-
-						}
-
-						else {
-							col = new Color((float)Math.random(),(float)Math.random(),(float)Math.random());
-							e.setColor(col);
-							v.edgeColor = col;
-							e.retVertex2().edgeColor = col;
-						}
-					}
-					if(e.retVertex2().equals(v) ) {
-						if(v.edgeColor != Color.blue) {
-							e.setColor(v.edgeColor);
-							e.retVertex1().edgeColor = v.edgeColor;
-						}
-
-						else if(v.edgeColor == Color.blue
-								&& e.retVertex1().edgeColor !=  Color.blue){
-							e.setColor(e.retVertex1().edgeColor);
-							v.edgeColor = e.retVertex1().edgeColor;
-
-						}
-
-						else {
-							col = new Color((float)Math.random(),(float)Math.random(),(float)Math.random());
-							e.setColor(col);
-							v.edgeColor = col;
-							e.retVertex1().edgeColor = col;
-						}
-					}
+	private void DFSVISIT(edge e, Color c){
+		if(e.visited()) {
+			return;
+		}
+		else {
+			e.setVisited(true);
+			vertex v1 = e.retVertex1();
+			vertex v2 = e.retVertex2();
+			ArrayList<edge> adjlist = new ArrayList<edge>();
+			
+			for(edge x: v1.returnEdges()) {
+				if(!adjlist.contains(x) && !x.visited()) {
+					adjlist.add(x);
+				}
+				
+			}
+			for(edge x: v2.returnEdges()) {
+				if(!adjlist.contains(x) && !x.visited()) {
+					adjlist.add(x);
 				}
 			}
+			//v.edgeColor = c;
+			/*
+			 * for (vertex x: adjlist) { if(!x.visited()) { x.setVisited(true);
+			 * //x.edgeColor = c; x.setColor(c); DFSVISIT(x,c); }
+			 * 
+			 * }
+			 */
+			for(edge x: adjlist) {
+				if(!x.visited()) {
+					DFSVISIT(x, c);	
+				}
+				
+			}
 		}
+		
+		e.setColor(c);
+		
 	}
+
+	
+	
 	public void clear() {
-		//Graph g= new Graph(vertexlist, edgelist);
-		//g.connectedComponents();
 		// TODO Auto-generated method stub
 		vertexlist.removeAll(vertexlist);
-		edgelist.removeAll(edgelist);
+		edgelist.removeAll(edgelist); 
 		this.repaint();
+		//System.out.println("Clear button pressed");
 	}
 
-	public void cutVertices() {
-		@SuppressWarnings("unchecked")
-		ArrayList<vertex> vlist = (ArrayList<vertex>) vertexlist.clone();
-		@SuppressWarnings("unchecked")
-		ArrayList<edge> elist= (ArrayList<edge>)edgelist.clone();
-		ArrayList<Integer> id = new ArrayList<Integer>();
-		for(vertex v: vlist) {
-			v.setVisited(false);
-		}
-		for(edge e: elist) {
-			e.setVisited(false);
-		}
-		for(int i=0;i< vlist.size();i++) {
-			vertex v = vlist.get(i);
-			if(!v.visited()) {
-				v.setVisited(true);
-				for(int j = 0; j< elist.size();j++) {
-					if(elist.get(j).retVertex1().equals(v)||elist.get(j).retVertex2().equals(v))
-						elist.remove(j);
-
-				}
-				vlist.remove(i);
-				coloredges(vlist, elist);
-				if(checkGraph() > 0) {
-					id.add(i);
-				}
-				vlist.add(v);
-			}
-		}
-
-		for(int i = 0; i< id.size();i++) {
-			vertexlist.get(id.get(i)).setColor(Color.green);
-		}
-		this.repaint();
-	}
-
-	private int checkGraph() {
-		// TODO Auto-generated method stub
-		ArrayList<Color> clist = new ArrayList<Color>();
-		Color c = edgelist.get(0).lineColor();
-		clist.add(c);
-		for(edge e: edgelist) {
-			if(!clist.contains(e.lineColor())) {
-				clist.add(e.lineColor());
-			}
-		}
-		return clist.size();
-	}
+	// A recursive function that find articulation points using DFS 
+    // u --> The vertex to be visited next 
+    // visited[] --> keeps tract of visited vertices 
+    // disc[] --> Stores discovery times of visited vertices 
+    // parent[] --> Stores parent vertices in DFS tree 
+    // ap[] --> Store articulation points 
+    void APUtil(vertex  u , ArrayList<vertex> ap) 
+    { 
+  
+      
+  
+        // Mark the current node as visited 
+        u.setVisited(true);
+  
+        // Initialize discovery time and low value 
+        u.disc = u.low = ++time; 
+  
+        // Go through all vertices aadjacent to this 
+       for(vertex v: u.adjV())
+        { 
+    	   	// v is current adjacent of u 
+  
+            // If v is not visited yet, then make it a child of u 
+            // in DFS tree and recur for it 
+            if (!v.visited()) 
+            { 
+                
+                v.parent = u;
+                APUtil(v, ap); //
+  
+                // Check if the subtree rooted with v has a connection to 
+                // one of the ancestors of u 
+                u.low  = Math.min(u.low, v.low); 
+  
+                // u is an articulation point in following cases 
+               
+				/*
+				 * // (1) u is root of DFS tree and has two or more children. if (u.parent ==
+				 * null && u.adjV().size() > 1) { if(!ap.contains(u)) { ap.add(u); } }
+				 */
+  
+                // (2) If u is not root and low value of one of its child 
+                // is more than discovery value of u. 
+                if (u.parent != null && v.low >= u.disc) 
+                {
+                	if(!ap.contains(u)) {
+                		ap.add(u);
+                	}
+                }
+                
+            } 
+  
+            // Update low value of u for parent function calls. 
+            else if (v != u.parent) 
+                u.low  = Math.min(u.low, v.disc); 
+        } 
+    } 
+  
+    // The function to do DFS traversal. It uses recursive function APUtil() 
+    public void AP() 
+    { 
+        // Mark all the vertices as not visited 
+       
+    	 ArrayList<vertex> ap = new ArrayList<vertex>(); 
+  
+        // Initialize parent and visited, and ap(articulation point) 
+        // arrays 
+        for (vertex v: vertexlist) 
+        { 
+           v.parent = null; 
+           v.setVisited(false);
+        } 
+  
+        // Call the recursive helper function to find articulation 
+        // points in DFS tree rooted with vertex 'i' 
+        for (vertex v: vertexlist) {
+        	 if (!v.visited()) 
+                 APUtil(v, ap); 
+        }
+           
+  
+        // Now ap[] contains articulation points, print them 
+        for (vertex v: ap) {
+        	System.out.println(v.vertexNum);
+        	v.setColor(Color.green);
+        }
+        this.repaint();
+            
+    } 
+    
+    
+    static int time = 0; 
+   // To store articulation points 
+   
+    
 
 }
